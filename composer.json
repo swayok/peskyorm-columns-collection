@@ -1,0 +1,28 @@
+{
+    "name": "swayok/peskyorm-columns-collection",
+    "type": "library",
+    "description": "Table structure columns and traits collection for PeskyORM",
+    "keywords": [
+        "php"
+    ],
+    "authors": [
+        {
+            "name": "Alexander Filippov"
+        }
+    ],
+    "license": "MIT",
+    "support": {
+        "issues": "https://github.com/swayok/peskyorm-columns-collection/issues"
+    },
+    "autoload": {
+        "psr-4": {
+            "PeskyORMColumns\\": "src"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require": {
+        "php": ">=7.2.0",
+        "swayok/peskyorm": "dev-v2_1"
+    }
+}
