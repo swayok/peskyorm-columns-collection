@@ -168,6 +168,7 @@ class MetadataFilesColumn extends Column
             return $value;
         }
         if ($value instanceof UploadedFile) {
+            // also applies to Base64UploadedFile
             return [
                 'name' => $value->getClientOriginalName(),
                 'type' => $value->getClientMimeType(),
