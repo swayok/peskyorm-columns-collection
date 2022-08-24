@@ -278,13 +278,21 @@ class DbFileInfo
     /**
      * @returns string
      * @noinspection PhpMissingReturnTypeInspection
+     *
+     * WARNING: do not add return type!!
      */
     public function getFilePath()
-    { //< do not add return type!!
+    {
         return $this->column->getFilePath($this->valueContainer);
     }
     
-    public function getAbsoluteFileUrl(): string
+    /**
+     * @returns string
+     * @noinspection PhpMissingReturnTypeInspection
+     *
+     * WARNING: do not add return type!!
+     */
+    public function getAbsoluteFileUrl()
     {
         return $this->column->getAbsoluteFileUrl($this->valueContainer);
     }
@@ -295,6 +303,14 @@ class DbFileInfo
             return false;
         }
         return $this->column->isFileExists($this->valueContainer);
+    }
+    
+    public function getFileSize(): int
+    {
+        if ($this->isFileExists()) {
+            return filesize($this->getFilePath());
+        }
+        return 0;
     }
     
     public function toArray(): array

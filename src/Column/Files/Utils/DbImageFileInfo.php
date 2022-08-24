@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace PeskyORMColumns\Column\Files\Utils;
 
 use PeskyORM\ORM\RecordValue;
+use Swayok\Utils\File;
 use Swayok\Utils\ImageUtils;
 
 class DbImageFileInfo extends DbFileInfo
 {
     
-    protected $filesNames = [];
+    protected array $filesNames = [];
     
     public function __construct(RecordValue $valueContainer)
     {
@@ -42,26 +43,47 @@ class DbImageFileInfo extends DbFileInfo
         return $this->column->getImageVersionPath($this->record, $versionName);
     }
     
-    public function getAbsoluteFileUrl(?string $versionName = null): string
+    /**
+     * @returns string|array
+     */
+    public function getAbsoluteFileUrl(?string $versionName = null)
     {
         return $this->column->getAbsoluteFileUrl($this->valueContainer, $versionName);
     }
     
     /**
-     * @return bool|string
+     * @param string|null $versionName = null: returns file size of 1st version (usually it is original file)
+     * @return int
      */
-    public function restoreImageVersion(?string $versionName, ?string $ext = null)
+    public function getFileSize(?string $versionName = null): int
+    {
+        $path = $this->getFilePath($versionName);
+        if (empty($path)) {
+            return 0;
+        }
+        if (is_array($path)) {
+            // get 1st version (usually it is original file)
+            $path = array_values($path)[0];
+        }
+        if (File::exist($path)) {
+            return filesize($path);
+        }
+        return 0;
+    }
+    
+    public function restoreImageVersion(?string $versionName, ?string $ext = null): ?string
     {
         $configs = $this->column->getImageVersionsConfigs();
         if (empty($configs[$versionName])) {
-            return false;
+            return null;
         }
-        return ImageUtils::restoreVersionForConfig(
+        $filePath = ImageUtils::restoreVersionForConfig(
             $versionName,
             $configs[$versionName],
             $this->getFileNameWithoutExtension(),
             $this->column->getFileDirPath($this->record),
             $ext
         );
+        return $filePath ?: null;
     }
 }
