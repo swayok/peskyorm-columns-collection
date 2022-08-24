@@ -11,13 +11,16 @@ use PeskyORM\ORM\RecordValue;
 class BcryptPasswordColumn extends Column
 {
     
-    /** @noinspection PhpParameterNameChangedDuringInheritanceInspection */
+    /**
+     * @noinspection PhpParameterNameChangedDuringInheritanceInspection
+     * @return static
+     */
     public static function create(?string $name = null, ?string $notUsed = null)
     {
         return new static($name);
     }
     
-    public function __construct(?string $name = null, string $notUsed = null)
+    public function __construct(?string $name = null)
     {
         parent::__construct($name, self::TYPE_PASSWORD);
         $this

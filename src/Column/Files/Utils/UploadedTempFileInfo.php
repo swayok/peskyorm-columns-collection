@@ -12,20 +12,14 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 abstract class UploadedTempFileInfo extends \SplFileInfo
 {
     
-    /** @var string|null */
-    protected $name = null;
-    /** @var string|null */
-    protected $type = null;
-    /** @var string|null */
-    protected $relativePath = null;
-    /** @var string|null */
-    protected $realPath = null;
-    protected $isSaved = false;
-    protected $isValid = true;
-    /** @var int|null */
-    protected $size = null;
-    /** @var int|null */
-    protected $position = null;
+    protected ?string $name = null;
+    protected ?string $type = null;
+    protected ?string $relativePath = null;
+    protected ?string $realPath = null;
+    protected bool $isSaved = false;
+    protected bool $isValid = true;
+    protected ?int $size = null;
+    protected ?int $position = null;
     
     abstract public static function getUploadsTempFolder(): string;
     

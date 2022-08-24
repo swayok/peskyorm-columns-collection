@@ -14,49 +14,22 @@ use Ramsey\Uuid\Uuid;
 class DbFileInfo
 {
     
-    /**
-     * @var RecordValue
-     */
-    protected $valueContainer;
+    protected RecordValue $valueContainer;
     /**
      * @var Column|MetadataFilesColumn|MetadataImagesColumn
      */
-    protected $column;
-    /**
-     * @var RecordInterface
-     */
-    protected $record;
+    protected Column $column;
+    protected RecordInterface $record;
     
-    /**
-     * @var null|string
-     */
-    protected $fileExtension = null;
-    /**
-     * @var null|string
-     */
-    protected $fileNameWithoutExtension = null;
-    /**
-     * @var null|string
-     */
-    protected $fileNameWithExtension = null;
-    /**
-     * @var null|string
-     */
-    protected $originalFileNameWithExtension = null;
-    /**
-     * @var null|string
-     */
-    protected $originalFileNameWithoutExtension = null;
-    /**
-     * @var null|string
-     */
-    protected $uuid = null;
-    /**
-     * @var null|int
-     */
-    protected $position = null;
+    protected ?string $fileExtension = null;
+    protected ?string $fileNameWithoutExtension = null;
+    protected ?string $fileNameWithExtension = null;
+    protected ?string $originalFileNameWithExtension = null;
+    protected ?string $originalFileNameWithoutExtension = null;
+    protected ?string $uuid = null;
+    protected ?int $position = null;
     
-    protected $jsonMap = [
+    protected array $jsonMap = [
         'file_name' => 'fileNameWithoutExtension',
         'full_file_name' => 'fileNameWithExtension',
         'original_file_name' => 'originalFileNameWithoutExtension',

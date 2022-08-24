@@ -28,10 +28,7 @@ abstract class MimeTypesHelper {
     public const MP4_AUDIO = 'audio/mp4';
     public const UNKNOWN = 'application/octet-stream';
 
-    /**
-     * @var array
-     */
-    protected static $mimeToExt = [
+    protected static array $mimeToExt = [
         self::TXT => 'txt',
         self::PDF => 'pdf',
         self::RTF => 'rtf',
@@ -58,9 +55,8 @@ abstract class MimeTypesHelper {
      * List of aliases for file types.
      * Format: 'common/filetype' => ['alias/filetype1', 'alias/filetype2']
      * For example: image/jpeg file type has alias image/x-jpeg
-     * @var array
      */
-    protected static $mimeTypesAliases = [
+    protected static array $mimeTypesAliases = [
         self::JPEG => [
             'image/x-jpeg'
         ],
@@ -100,7 +96,7 @@ abstract class MimeTypesHelper {
     public const TYPE_ARCHIVE = 'archive';
     public const TYPE_OFFICE = 'office';
 
-    protected static $mimeTypeToFileType = [
+    protected static array $mimeTypeToFileType = [
         self::TXT => self::TYPE_TEXT,
         self::PDF => self::TYPE_OFFICE,
         self::RTF => self::TYPE_TEXT,

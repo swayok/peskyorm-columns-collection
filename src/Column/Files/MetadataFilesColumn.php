@@ -19,55 +19,33 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 class MetadataFilesColumn extends Column
 {
     
-    protected $fileInfoClassName = DbFileInfo::class;
+    protected string $fileInfoClassName = DbFileInfo::class;
     
-    /** @var int */
-    protected $indexInMetadataColumn;
+    protected ?int $indexInMetadataColumn = null;
     
-    /** @var string */
-    protected $metadataColumnName = 'files_metadata';
+    protected string $metadataColumnName = 'files_metadata';
     
-    /** @var string */
-    protected $metadataGroupName = 'files';
+    protected string $metadataGroupName = 'files';
     
-    /** @var string|callable */
+    /** @var string|\Closure */
     protected $basePathToFiles;
-    /** @var string|null|callable */
-    protected $baseUrlToFiles;
-    /**
-     * @var array|null - null: any extension
-     */
-    protected $allowedFileExtensions;
-    /**
-     * @var string - null: no default extension
-     */
-    protected $defaultFileExtension = '';
-    /**
-     * @var null|\Closure
-     */
-    protected $fileNameGenerator;
-    /**
-     * @var null|\Closure
-     */
-    protected $fileSubdirGenerator;
-    /**
-     * @var null|\Closure
-     */
-    protected $fileDirPathGenerator;
-    /**
-     * @var null|\Closure
-     */
-    protected $fileDirRelativeUrlGenerator;
-    /**
-     * @var null|\Closure
-     */
-    protected $fileServerUrlGenerator;
+    /** @var string|null|\Closure */
+    protected $baseUrlToFiles = null;
+    /** null: any extension */
+    protected ?array $allowedFileExtensions = null;
+    protected string $defaultFileExtension = '';
+    
+    protected ?\Closure $fileNameGenerator = null;
+    protected ?\Closure $fileSubdirGenerator = null;
+    protected ?\Closure $fileDirPathGenerator = null;
+    protected ?\Closure $fileDirRelativeUrlGenerator = null;
+    protected ?\Closure $fileServerUrlGenerator = null;
     
     /**
      * @param string|null $basePathToFiles
      * @param string|null $baseUrlToFiles
      * @param string|null $name
-     * @return $this
+     * @return static
      * @noinspection PhpParameterNameChangedDuringInheritanceInspection
      */
     public static function create(?string $basePathToFiles = null, ?string $baseUrlToFiles = null, ?string $name = null)
@@ -92,6 +70,9 @@ class MetadataFilesColumn extends Column
         }
     }
     
+    /**
+     * @return static
+     */
     protected function setDefaultColumnClosures()
     {
         $this
@@ -138,7 +119,7 @@ class MetadataFilesColumn extends Column
                     ->setValidValue($newValue['tmp_name'], $newValue['tmp_name'])
                     ->setDataForSavingExtender($newValue);
             })
-            ->setValueSavingExtender(function (RecordValue $valueContainer, $isUpdate, array $savedData) {
+            ->setValueSavingExtender(function (RecordValue $valueContainer, $isUpdate) {
                 $fileUpload = $valueContainer->pullDataForSavingExtender();
                 if (empty($fileUpload)) {
                     // do not remove! infinite recursion will happen!
@@ -159,7 +140,7 @@ class MetadataFilesColumn extends Column
                 }
             });
         
-        parent::setDefaultColumnClosures();
+        return parent::setDefaultColumnClosures();
     }
     
     protected function normalizeFileUpload($value): array
@@ -409,7 +390,7 @@ class MetadataFilesColumn extends Column
     
     /**
      * @param string|\Closure $basePathToFiles
-     * @return $this
+     * @return static
      */
     public function setBasePathToFiles($basePathToFiles)
     {
@@ -430,7 +411,7 @@ class MetadataFilesColumn extends Column
     
     /**
      * @param string|null|\Closure $baseUrlToFiles
-     * @return $this
+     * @return static
      */
     public function setBaseUrlToFiles($baseUrlToFiles)
     {
@@ -461,7 +442,7 @@ class MetadataFilesColumn extends Column
     
     /**
      * @param string $defaultFileExtension
-     * @return $this
+     * @return static
      */
     public function setDefaultFileExtension(string $defaultFileExtension)
     {
@@ -486,7 +467,7 @@ class MetadataFilesColumn extends Column
     
     /**
      * @param array $allowedFileExtensions
-     * @return $this
+     * @return static
      */
     public function setAllowedFileExtensions(array $allowedFileExtensions)
     {
@@ -508,7 +489,7 @@ class MetadataFilesColumn extends Column
     
     /**
      * @param \Closure $fileDirRelativeUrlGenerator - function (FileColumnConfig $column, Record $record) {}
-     * @return $this
+     * @return static
      */
     public function setFileDirRelativeUrlGenerator(\Closure $fileDirRelativeUrlGenerator)
     {
@@ -523,7 +504,7 @@ class MetadataFilesColumn extends Column
     
     /**
      * @param \Closure $fileDirPathGenerator - function (FileColumnConfig $column, Record $record) {}
-     * @return $this
+     * @return static
      */
     public function setFileDirPathGenerator(\Closure $fileDirPathGenerator)
     {
@@ -538,7 +519,7 @@ class MetadataFilesColumn extends Column
     
     /**
      * @param \Closure $fileSubdirGenerator - function (FileColumnConfig $column, Record $record, $directorySeparator = DIRECTORY_SEPARATOR) {}
-     * @return $this
+     * @return static
      */
     public function setFileSubdirGenerator(\Closure $fileSubdirGenerator)
     {
@@ -553,7 +534,7 @@ class MetadataFilesColumn extends Column
     
     /**
      * @param \Closure $fileNameGenerator - function (FileColumnConfig $column) {}
-     * @return $this
+     * @return static
      */
     public function setFileNameGenerator(\Closure $fileNameGenerator)
     {
@@ -576,7 +557,7 @@ class MetadataFilesColumn extends Column
     
     /**
      * @param \Closure $fileServerUrlGenerator
-     * @return $this
+     * @return static
      */
     public function setFileServerUrlGenerator(\Closure $fileServerUrlGenerator)
     {

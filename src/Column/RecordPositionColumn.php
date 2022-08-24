@@ -10,8 +10,11 @@ use PeskyORM\ORM\Column;
 class RecordPositionColumn extends Column
 {
     
-    protected $increment = 100;
+    protected int $increment = 100;
     
+    /**
+     * @return static
+     */
     public static function create(string $type = self::TYPE_INT, ?string $name = null)
     {
         return parent::create($type, $name);
@@ -39,6 +42,7 @@ class RecordPositionColumn extends Column
     }
     
     /**
+     * @return static
      * @throws \BadMethodCallException
      */
     public function doesNotExistInDb()
@@ -49,16 +53,13 @@ class RecordPositionColumn extends Column
         );
     }
     
-    /**
-     * @return int
-     */
     public function getIncrement(): int
     {
         return $this->increment;
     }
     
     /**
-     * @param int $increment - distance between  step
+     * @param int $increment - numeric distance between positions
      * @return static
      * @throws \InvalidArgumentException
      */

@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class Base64UploadedFile extends UploadedFile {
 
-    protected $tempFilePath;
+    protected string $tempFilePath;
 
     /**
      * @param string $fileData - file data encoded as base64 string

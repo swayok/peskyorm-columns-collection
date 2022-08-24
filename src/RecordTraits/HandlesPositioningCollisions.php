@@ -15,7 +15,7 @@ use Swayok\Utils\NormalizeValue;
 trait HandlesPositioningCollisions
 {
     
-    private $transactionWasCreatedForPositioningCollision = false;
+    private bool $transactionWasCreatedForPositioningCollision = false;
     
     protected function beforeSave(array $columnsToSave, array $data, bool $isUpdate): array
     {

@@ -13,19 +13,19 @@ use Swayok\Utils\ImageVersionConfig;
 class MetadataImagesColumn extends MetadataFilesColumn
 {
     
-    protected $fileInfoClassName = DbImageFileInfo::class;
+    protected string $fileInfoClassName = DbImageFileInfo::class;
     
-    protected $metadataGroupName = 'images';
+    protected string $metadataGroupName = 'images';
     
     /**
      * @var ImageVersionConfig[]
      */
-    private $versionsConfigs = [];
+    private array $versionsConfigs = [];
     
     /**
-     * @return $this
+     * @return static
      */
-    public function addImageVersionConfig(string $versionName, ImageVersionConfig $config)
+    public function addImageVersionConfig(string $versionName, ImageVersionConfig $config): MetadataImagesColumn
     {
         if ($this->hasImageVersionConfig($versionName)) {
             throw new \InvalidArgumentException("Image version config '$versionName' already defined");
