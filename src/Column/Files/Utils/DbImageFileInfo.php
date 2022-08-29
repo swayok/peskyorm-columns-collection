@@ -24,6 +24,9 @@ class DbImageFileInfo extends DbFileInfo
         return $this->filesNames;
     }
     
+    /**
+     * @return static
+     */
     public function setFilesNames(array $filesNames)
     {
         $this->filesNames = $filesNames;

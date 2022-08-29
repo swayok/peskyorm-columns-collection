@@ -60,6 +60,9 @@ class DbFileInfo
         return $this->column;
     }
     
+    /**
+     * @return static
+     */
     public function readFileInfo()
     {
         if ($this->record->existsInDb()) {
@@ -71,7 +74,7 @@ class DbFileInfo
         return $this;
     }
     
-    public function saveToFile()
+    public function saveToFile(): void
     {
         if (!$this->record->existsInDb()) {
             throw new \UnexpectedValueException('Unable to save file info json file of non-existing object');
@@ -125,6 +128,9 @@ class DbFileInfo
         return is_array($info) ? $info : null;
     }
     
+    /**
+     * @return static
+     */
     public function update(array $data)
     {
         foreach ($this->jsonMap as $jsonKey => $paramName) {
@@ -143,12 +149,18 @@ class DbFileInfo
         return $this->uuid;
     }
     
+    /**
+     * @return static
+     */
     public function setUuid(string $uuid)
     {
         $this->uuid = $uuid;
         return $this;
     }
     
+    /**
+     * @return static
+     */
     protected function normalizeUuid()
     {
         if (!$this->uuid && ($this->fileNameWithExtension || $this->originalFileNameWithExtension)) {
@@ -162,12 +174,18 @@ class DbFileInfo
         return $this->position ?? $this->getColumn()->getIndexInMetadataColumn();
     }
     
+    /**
+     * @return static
+     */
     public function setPosition(int $position)
     {
         $this->position = $position;
         return $this;
     }
     
+    /**
+     * @return static
+     */
     protected function normalizePosition()
     {
         if (!$this->position) {
@@ -187,6 +205,9 @@ class DbFileInfo
         return $ext ? MimeTypesHelper::getMimeTypeForExtension($ext) : MimeTypesHelper::UNKNOWN;
     }
     
+    /**
+     * @return static
+     */
     public function setFileExtension(string $extension)
     {
         $this->fileExtension = $extension;
@@ -198,6 +219,9 @@ class DbFileInfo
         return $this->fileNameWithoutExtension;
     }
     
+    /**
+     * @return static
+     */
     public function setFileNameWithoutExtension(string $fileNameWithoutExtension)
     {
         $this->fileNameWithoutExtension = rtrim($fileNameWithoutExtension, '.');
@@ -209,6 +233,9 @@ class DbFileInfo
         return $this->fileNameWithExtension;
     }
     
+    /**
+     * @return static
+     */
     public function setFileNameWithExtension(string $fileNameWithExtension)
     {
         $this->fileNameWithExtension = rtrim($fileNameWithExtension, '.');
@@ -228,6 +255,9 @@ class DbFileInfo
         return !empty($this->originalFileNameWithExtension);
     }
     
+    /**
+     * @return static
+     */
     public function setOriginalFileNameWithExtension(string $fileNameWithExtension)
     {
         $this->originalFileNameWithExtension = rtrim($fileNameWithExtension, '.');
@@ -242,6 +272,9 @@ class DbFileInfo
             : $this->originalFileNameWithoutExtension;
     }
     
+    /**
+     * @return static
+     */
     public function setOriginalFileNameWithoutExtension(string $fileNameWithoutExtension)
     {
         $this->originalFileNameWithoutExtension = rtrim($fileNameWithoutExtension, '.');

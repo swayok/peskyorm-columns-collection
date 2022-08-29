@@ -17,6 +17,7 @@ trait HandlesPositioningCollisions
     
     private bool $transactionWasCreatedForPositioningCollision = false;
     
+    /** @noinspection PhpUnused */
     protected function beforeSave(array $columnsToSave, array $data, bool $isUpdate): array
     {
         /** @var RecordInterface $this */
@@ -32,7 +33,8 @@ trait HandlesPositioningCollisions
         return [];
     }
     
-    protected function afterSave(bool $isCreated, array $updatedColumns = [])
+    /** @noinspection PhpUnused */
+    protected function afterSave(bool $isCreated, array $updatedColumns = []): void
     {
         parent::afterSave($isCreated, $updatedColumns);
         $this->finishPositioningCollision();
@@ -42,7 +44,7 @@ trait HandlesPositioningCollisions
     {
         /** @var RecordInterface $this */
         $table = $this::getTable();
-        if ($table::inTransaction() && $this->transactionWasCreatedForPositioningCollision) {
+        if ($this->transactionWasCreatedForPositioningCollision && $table::inTransaction()) {
             $table::commitTransaction();
         }
         $this->transactionWasCreatedForPositioningCollision = false;

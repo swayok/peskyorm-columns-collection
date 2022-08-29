@@ -78,6 +78,7 @@ abstract class UploadedTempFileInfo extends \SplFileInfo
             $this->name = $file->getOriginalFileNameWithExtension();
             $this->type = $file->getMimeType();
             if ($file instanceof DbImageFileInfo) {
+                /** @noinspection PhpPossiblePolymorphicInvocationInspection */
                 $this->realPath = $file->getFilePath(array_keys($file->getColumn()->getImageVersionsConfigs())[0]);
             } else {
                 $this->realPath = $file->getFilePath();
@@ -101,6 +102,9 @@ abstract class UploadedTempFileInfo extends \SplFileInfo
         parent::__construct($this->realPath);
     }
     
+    /**
+     * @return static
+     */
     public function setPosition(int $position)
     {
         $this->position = $position;
@@ -114,6 +118,7 @@ abstract class UploadedTempFileInfo extends \SplFileInfo
     
     /**
      * Replace real path by copied file real path returning modified instance
+     * @return static
      */
     public function useCopiedFile()
     {
@@ -125,12 +130,16 @@ abstract class UploadedTempFileInfo extends \SplFileInfo
     
     /**
      * Create a copy of this instance that uses a copy of original file
+     * @return static
      */
     public function makeCopy()
     {
         return (clone $this)->useCopiedFile();
     }
     
+    /**
+     * @return static
+     */
     public function save()
     {
         if (!$this->isSaved) {
@@ -142,6 +151,9 @@ abstract class UploadedTempFileInfo extends \SplFileInfo
         return $this;
     }
     
+    /**
+     * @return static
+     */
     public function delete()
     {
         static::deleteFile($this->getRealPath());

@@ -14,7 +14,6 @@ class Base64UploadedFile extends UploadedFile {
     /**
      * @param string $fileData - file data encoded as base64 string
      * @param string $fileName - file name with extension
-     * @throws \Symfony\Component\HttpFoundation\File\Exception\FileException
      */
     public function __construct($fileData, $fileName) {
         $this->tempFilePath = tempnam(sys_get_temp_dir(), 'tmp');
@@ -25,6 +24,7 @@ class Base64UploadedFile extends UploadedFile {
             $mime = $mimeMatches[1];
         } else {
             $rawExt = strtolower(preg_replace('%^.*\.([a-zA-Z0-9]+?)$%', '$1', $fileName));
+            /** @noinspection PhpComposerExtensionStubsInspection */
             $mime = MimeTypesHelper::getMimeTypeForExtension($rawExt) ?? mime_content_type($this->tempFilePath);
         }
         // update file extension according to detected mime type

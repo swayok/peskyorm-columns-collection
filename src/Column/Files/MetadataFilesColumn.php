@@ -76,10 +76,10 @@ class MetadataFilesColumn extends Column
     protected function setDefaultColumnClosures()
     {
         $this
-            ->setValueExistenceChecker(function (RecordValue $value, bool $checkDefaultValue = false) {
+            ->setValueExistenceChecker(function (RecordValue $value) {
                 return $value->hasValue() || ($value->getRecord()->existsInDb() && $this->isFileExists($value));
             })
-            ->setValueGetter(function (RecordValue $value, $format = null) {
+            ->setValueGetter(function (RecordValue $value) {
                 $record = $value->getRecord();
                 if ($record->existsInDb()) {
                     return $this->getFileInfo($value);
@@ -87,13 +87,13 @@ class MetadataFilesColumn extends Column
                     return $value->getValue();
                 }
             })
-            ->setValueValidator(function ($value, $isFromDb, $isForCondition) {
+            ->setValueValidator(function ($value, $isFromDb) {
                 if ($isFromDb || empty($value)) {
                     return [];
                 }
                 return $this->validateUploadedFile($value);
             })
-            ->setValueSetter(function ($newValue, $isFromDb, RecordValue $valueContainer, $trustDataReceivedFromDb) {
+            ->setValueSetter(function ($newValue, $isFromDb, RecordValue $valueContainer) {
                 if ($isFromDb) {
                     // this column cannot have DB value because it does not exist in DB
                     $valueContainer
@@ -457,10 +457,7 @@ class MetadataFilesColumn extends Column
         return $this;
     }
     
-    /**
-     * @return array|null
-     */
-    public function getAllowedFileExtensions()
+    public function getAllowedFileExtensions(): ?array
     {
         return $this->allowedFileExtensions;
     }
@@ -547,10 +544,7 @@ class MetadataFilesColumn extends Column
         return $this->fileServerUrlGenerator;
     }
     
-    /**
-     * @return bool
-     */
-    public function hasFileServerUrlGenerator()
+    public function hasFileServerUrlGenerator(): bool
     {
         return (bool)$this->fileServerUrlGenerator;
     }
@@ -563,20 +557,6 @@ class MetadataFilesColumn extends Column
     {
         $this->fileServerUrlGenerator = $fileServerUrlGenerator;
         return $this;
-    }
-    
-    /**
-     * Get original file name with extension
-     * @return string
-     */
-    protected function getOriginalFullFileName(RecordValue $recordValue)
-    {
-        $fileInfo = $this->getFileInfo($recordValue);
-        if ($fileInfo->hasOriginalFileNameWithExtension()) {
-            return $fileInfo->getOriginalFileNameWithExtension();
-        } else {
-            return $this->getFullFileName($recordValue);
-        }
     }
     
     /**
@@ -698,6 +678,9 @@ class MetadataFilesColumn extends Column
         return $this->indexInMetadataColumn;
     }
     
+    /**
+     * @return static
+     */
     public function setIndexInMetadataColumn(int $indexInMetadataColumn)
     {
         $this->indexInMetadataColumn = $indexInMetadataColumn;
@@ -709,6 +692,9 @@ class MetadataFilesColumn extends Column
         return $this->metadataColumnName;
     }
     
+    /**
+     * @return static
+     */
     public function setMetadataColumnName(string $metadataColumnName)
     {
         $this->metadataColumnName = $metadataColumnName;
@@ -720,6 +706,9 @@ class MetadataFilesColumn extends Column
         return $this->metadataGroupName;
     }
     
+    /**
+     * @return static
+     */
     public function setMetadataGroupName(string $metadataGroupName)
     {
         $this->metadataGroupName = $metadataGroupName;
