@@ -24,10 +24,7 @@ class DbImageFileInfo extends DbFileInfo
         return $this->filesNames;
     }
     
-    /**
-     * @return static
-     */
-    public function setFilesNames(array $filesNames)
+    public function setFilesNames(array $filesNames): static
     {
         $this->filesNames = $filesNames;
         return $this;
@@ -38,18 +35,12 @@ class DbImageFileInfo extends DbFileInfo
         return $this->getOriginalFileNameWithoutExtension() . '.' . $this->getFileExtension();
     }*/
     
-    /**
-     * @return string|array
-     */
-    public function getFilePath(?string $versionName = null)
+    public function getFilePath(?string $versionName = null): array|string
     {
         return $this->column->getImageVersionPath($this->record, $versionName);
     }
     
-    /**
-     * @returns string|array
-     */
-    public function getAbsoluteFileUrl(?string $versionName = null)
+    public function getAbsoluteFileUrl(?string $versionName = null): array|string
     {
         return $this->column->getAbsoluteFileUrl($this->valueContainer, $versionName);
     }

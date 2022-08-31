@@ -12,10 +12,7 @@ class RecordPositionColumn extends Column
     
     protected int $increment = 100;
     
-    /**
-     * @return static
-     */
-    public static function create(string $type = self::TYPE_INT, ?string $name = null)
+    public static function create(string $type = self::TYPE_INT, ?string $name = null): static
     {
         return parent::create($type, $name);
     }
@@ -42,10 +39,9 @@ class RecordPositionColumn extends Column
     }
     
     /**
-     * @return static
      * @throws \BadMethodCallException
      */
-    public function doesNotExistInDb()
+    public function doesNotExistInDb(): static
     {
         throw new \BadMethodCallException(
             'This column must exist in database. Column: '
@@ -60,10 +56,9 @@ class RecordPositionColumn extends Column
     
     /**
      * @param int $increment - numeric distance between positions
-     * @return static
      * @throws \InvalidArgumentException
      */
-    public function setIncrement(int $increment)
+    public function setIncrement(int $increment): static
     {
         if ($increment === 0) {
             throw new \InvalidArgumentException('$increment argument cannot be 0');

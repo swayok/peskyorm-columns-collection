@@ -15,7 +15,7 @@ class Base64UploadedFile extends UploadedFile {
      * @param string $fileData - file data encoded as base64 string
      * @param string $fileName - file name with extension
      */
-    public function __construct($fileData, $fileName) {
+    public function __construct(string $fileData, string $fileName) {
         $this->tempFilePath = tempnam(sys_get_temp_dir(), 'tmp');
         $handle = fopen($this->tempFilePath, 'wb');
         fwrite($handle, base64_decode(preg_replace('%^.{0,200}base64,%i', '', $fileData)));

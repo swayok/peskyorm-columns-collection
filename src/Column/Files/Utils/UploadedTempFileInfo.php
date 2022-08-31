@@ -78,7 +78,6 @@ abstract class UploadedTempFileInfo extends \SplFileInfo
             $this->name = $file->getOriginalFileNameWithExtension();
             $this->type = $file->getMimeType();
             if ($file instanceof DbImageFileInfo) {
-                /** @noinspection PhpPossiblePolymorphicInvocationInspection */
                 $this->realPath = $file->getFilePath(array_keys($file->getColumn()->getImageVersionsConfigs())[0]);
             } else {
                 $this->realPath = $file->getFilePath();
@@ -102,10 +101,7 @@ abstract class UploadedTempFileInfo extends \SplFileInfo
         parent::__construct($this->realPath);
     }
     
-    /**
-     * @return static
-     */
-    public function setPosition(int $position)
+    public function setPosition(int $position): static
     {
         $this->position = $position;
         return $this;
@@ -118,9 +114,8 @@ abstract class UploadedTempFileInfo extends \SplFileInfo
     
     /**
      * Replace real path by copied file real path returning modified instance
-     * @return static
      */
-    public function useCopiedFile()
+    public function useCopiedFile(): static
     {
         $copiedFilePath = $this->realPath . '.' . microtime(true);
         static::copyFile($this->getRealPath(), $copiedFilePath);
@@ -130,17 +125,13 @@ abstract class UploadedTempFileInfo extends \SplFileInfo
     
     /**
      * Create a copy of this instance that uses a copy of original file
-     * @return static
      */
-    public function makeCopy()
+    public function makeCopy(): static
     {
         return (clone $this)->useCopiedFile();
     }
     
-    /**
-     * @return static
-     */
-    public function save()
+    public function save(): static
     {
         if (!$this->isSaved) {
             $this->createSubfolder();
@@ -151,10 +142,7 @@ abstract class UploadedTempFileInfo extends \SplFileInfo
         return $this;
     }
     
-    /**
-     * @return static
-     */
-    public function delete()
+    public function delete(): static
     {
         static::deleteFile($this->getRealPath());
         return $this;
@@ -211,7 +199,7 @@ abstract class UploadedTempFileInfo extends \SplFileInfo
     
     public function isImage(): bool
     {
-        return preg_match('%^image/%', $this->getType());
+        return str_starts_with($this->getType(), 'image/');
     }
     
     public function encode(): string

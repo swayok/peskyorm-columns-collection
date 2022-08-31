@@ -13,9 +13,8 @@ class BcryptPasswordColumn extends Column
     
     /**
      * @noinspection PhpParameterNameChangedDuringInheritanceInspection
-     * @return static
      */
-    public static function create(?string $name = null, ?string $notUsed = null)
+    public static function create(?string $name = null, ?string $notUsed = null): static
     {
         return new static($name);
     }

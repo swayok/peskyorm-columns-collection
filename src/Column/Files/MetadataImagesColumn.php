@@ -6,6 +6,7 @@ namespace PeskyORMColumns\Column\Files;
 
 use PeskyORM\ORM\RecordInterface;
 use PeskyORM\ORM\RecordValue;
+use PeskyORMColumns\Column\Files\Utils\DbFileInfo;
 use PeskyORMColumns\Column\Files\Utils\DbImageFileInfo;
 use Swayok\Utils\ImageUtils;
 use Swayok\Utils\ImageVersionConfig;
@@ -63,7 +64,7 @@ class MetadataImagesColumn extends MetadataFilesColumn
      * @param string|null $versionName
      * @return array|string|null
      */
-    public function getImageVersionPath(RecordInterface $record, ?string $versionName)
+    public function getImageVersionPath(RecordInterface $record, ?string $versionName): array|string|null
     {
         $paths = $this->getImagesPaths($record);
         if (empty($versionName)) {
@@ -85,10 +86,7 @@ class MetadataImagesColumn extends MetadataFilesColumn
         );
     }
     
-    /**
-     * @return string|string[]|null
-     */
-    public function getAbsoluteFileUrl(RecordValue $valueContainer, ?string $versionName = null)
+    public function getAbsoluteFileUrl(RecordValue $valueContainer, ?string $versionName = null): array|string|null
     {
         $relativeUrl = $this->getRelativeImageUrl($valueContainer->getRecord(), $versionName);
         $serverUrl = $this->getFileServerUrl();
@@ -116,7 +114,7 @@ class MetadataImagesColumn extends MetadataFilesColumn
      * @param string|null $versionName
      * @return string[]|string|null
      */
-    protected function getRelativeImageUrl(RecordInterface $record, ?string $versionName)
+    protected function getRelativeImageUrl(RecordInterface $record, ?string $versionName): array|string|null
     {
         $urls = $this->getRelativeImagesUrls($record);
         if (empty($versionName)) {
@@ -158,7 +156,7 @@ class MetadataImagesColumn extends MetadataFilesColumn
         return parent::getFileDirRelativeUrl($record) . $this->getName() . '/';
     }
     
-    protected function storeFileToFS(array $uploadedFileInfo, string $filePath, $fileInfo): void
+    protected function storeFileToFS(array $uploadedFileInfo, string $filePath, DbImageFileInfo|DbFileInfo $fileInfo): void
     {
         $filesNames = ImageUtils::resize(
             $uploadedFileInfo,

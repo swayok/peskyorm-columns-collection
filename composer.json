@@ -22,8 +22,8 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "php": ">=7.4.0",
-        "swayok/peskyorm": "dev-v2_1",
+        "php": ">=8.0",
+        "swayok/peskyorm": "dev-v2_2",
         "swayok/utils": "^1.7.1",
         "ramsey/uuid": "*"
     }

@@ -15,10 +15,7 @@ class DbFileInfo
 {
     
     protected RecordValue $valueContainer;
-    /**
-     * @var Column|MetadataFilesColumn|MetadataImagesColumn
-     */
-    protected Column $column;
+    protected Column|MetadataFilesColumn|MetadataImagesColumn $column;
     protected RecordInterface $record;
     
     protected ?string $fileExtension = null;
@@ -52,18 +49,12 @@ class DbFileInfo
         return $this->record;
     }
     
-    /**
-     * @return MetadataFilesColumn
-     */
-    public function getColumn(): Column
+    public function getColumn(): Column|MetadataFilesColumn|MetadataImagesColumn
     {
         return $this->column;
     }
     
-    /**
-     * @return static
-     */
-    public function readFileInfo()
+    public function readFileInfo(): static
     {
         if ($this->record->existsInDb()) {
             $info = $this->getFileMetadataFromRecord();
@@ -128,10 +119,7 @@ class DbFileInfo
         return is_array($info) ? $info : null;
     }
     
-    /**
-     * @return static
-     */
-    public function update(array $data)
+    public function update(array $data): static
     {
         foreach ($this->jsonMap as $jsonKey => $paramName) {
             if (array_key_exists($jsonKey, $data) && $data[$jsonKey] !== null) {
@@ -149,19 +137,13 @@ class DbFileInfo
         return $this->uuid;
     }
     
-    /**
-     * @return static
-     */
-    public function setUuid(string $uuid)
+    public function setUuid(string $uuid): static
     {
         $this->uuid = $uuid;
         return $this;
     }
     
-    /**
-     * @return static
-     */
-    protected function normalizeUuid()
+    protected function normalizeUuid(): static
     {
         if (!$this->uuid && ($this->fileNameWithExtension || $this->originalFileNameWithExtension)) {
             $this->uuid = Uuid::uuid4()->toString();
@@ -174,19 +156,13 @@ class DbFileInfo
         return $this->position ?? $this->getColumn()->getIndexInMetadataColumn();
     }
     
-    /**
-     * @return static
-     */
-    public function setPosition(int $position)
+    public function setPosition(int $position): static
     {
         $this->position = $position;
         return $this;
     }
     
-    /**
-     * @return static
-     */
-    protected function normalizePosition()
+    protected function normalizePosition(): static
     {
         if (!$this->position) {
             $this->position = $this->getColumn()->getIndexInMetadataColumn();
@@ -205,10 +181,7 @@ class DbFileInfo
         return $ext ? MimeTypesHelper::getMimeTypeForExtension($ext) : MimeTypesHelper::UNKNOWN;
     }
     
-    /**
-     * @return static
-     */
-    public function setFileExtension(string $extension)
+    public function setFileExtension(string $extension): static
     {
         $this->fileExtension = $extension;
         return $this;
@@ -219,10 +192,7 @@ class DbFileInfo
         return $this->fileNameWithoutExtension;
     }
     
-    /**
-     * @return static
-     */
-    public function setFileNameWithoutExtension(string $fileNameWithoutExtension)
+    public function setFileNameWithoutExtension(string $fileNameWithoutExtension): static
     {
         $this->fileNameWithoutExtension = rtrim($fileNameWithoutExtension, '.');
         return $this;
@@ -233,10 +203,7 @@ class DbFileInfo
         return $this->fileNameWithExtension;
     }
     
-    /**
-     * @return static
-     */
-    public function setFileNameWithExtension(string $fileNameWithExtension)
+    public function setFileNameWithExtension(string $fileNameWithExtension): static
     {
         $this->fileNameWithExtension = rtrim($fileNameWithExtension, '.');
         $this->normalizeUuid();
@@ -255,10 +222,7 @@ class DbFileInfo
         return !empty($this->originalFileNameWithExtension);
     }
     
-    /**
-     * @return static
-     */
-    public function setOriginalFileNameWithExtension(string $fileNameWithExtension)
+    public function setOriginalFileNameWithExtension(string $fileNameWithExtension): static
     {
         $this->originalFileNameWithExtension = rtrim($fileNameWithExtension, '.');
         $this->normalizeUuid();
@@ -272,33 +236,26 @@ class DbFileInfo
             : $this->originalFileNameWithoutExtension;
     }
     
-    /**
-     * @return static
-     */
-    public function setOriginalFileNameWithoutExtension(string $fileNameWithoutExtension)
+    public function setOriginalFileNameWithoutExtension(string $fileNameWithoutExtension): static
     {
         $this->originalFileNameWithoutExtension = rtrim($fileNameWithoutExtension, '.');
         return $this;
     }
     
     /**
-     * @returns string
-     * @noinspection PhpMissingReturnTypeInspection
-     *
-     * WARNING: do not add return type!!
+     * @return string
+     * @noinspection PhpDocSignatureInspection
      */
-    public function getFilePath()
+    public function getFilePath(): array|string
     {
         return $this->column->getFilePath($this->valueContainer);
     }
     
     /**
-     * @returns string
-     * @noinspection PhpMissingReturnTypeInspection
-     *
-     * WARNING: do not add return type!!
+     * @return string
+     * @noinspection PhpDocSignatureInspection
      */
-    public function getAbsoluteFileUrl()
+    public function getAbsoluteFileUrl(): array|string
     {
         return $this->column->getAbsoluteFileUrl($this->valueContainer);
     }

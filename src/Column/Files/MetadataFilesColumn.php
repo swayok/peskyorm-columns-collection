@@ -27,10 +27,8 @@ class MetadataFilesColumn extends Column
     
     protected string $metadataGroupName = 'files';
     
-    /** @var string|\Closure */
-    protected $basePathToFiles;
-    /** @var string|null|\Closure */
-    protected $baseUrlToFiles = null;
+    protected string|\Closure|null $basePathToFiles = null;
+    protected string|\Closure|null $baseUrlToFiles = null;
     /** null: any extension */
     protected ?array $allowedFileExtensions = null;
     protected string $defaultFileExtension = '';
@@ -42,23 +40,14 @@ class MetadataFilesColumn extends Column
     protected ?\Closure $fileServerUrlGenerator = null;
     
     /**
-     * @param string|null $basePathToFiles
-     * @param string|null $baseUrlToFiles
-     * @param string|null $name
-     * @return static
      * @noinspection PhpParameterNameChangedDuringInheritanceInspection
      */
-    public static function create(?string $basePathToFiles = null, ?string $baseUrlToFiles = null, ?string $name = null)
+    public static function create(string|\Closure|null $basePathToFiles = null, string|\Closure $baseUrlToFiles = null, ?string $name = null): static
     {
         return new static($name, $basePathToFiles, $baseUrlToFiles);
     }
     
-    /**
-     * @param string|null $name
-     * @param string|\Closure $basePathToFiles
-     * @param string|null|\Closure $baseUrlToFiles
-     */
-    public function __construct(?string $name, $basePathToFiles, $baseUrlToFiles = null)
+    public function __construct(?string $name, string|\Closure|null $basePathToFiles, string|\Closure|null $baseUrlToFiles = null)
     {
         parent::__construct($name, $this->isItAnImage() ? static::TYPE_IMAGE : static::TYPE_FILE);
         $this->doesNotExistInDb();
@@ -70,10 +59,7 @@ class MetadataFilesColumn extends Column
         }
     }
     
-    /**
-     * @return static
-     */
-    protected function setDefaultColumnClosures()
+    protected function setDefaultColumnClosures(): static
     {
         $this
             ->setValueExistenceChecker(function (RecordValue $value) {
@@ -252,7 +238,7 @@ class MetadataFilesColumn extends Column
      * @param RecordValue $valueContainer
      * @return DbFileInfo|DbImageFileInfo
      */
-    public function getFileInfo(RecordValue $valueContainer)
+    public function getFileInfo(RecordValue $valueContainer): DbImageFileInfo|DbFileInfo
     {
         return $valueContainer->getCustomInfo(
             'FileInfo',
@@ -267,7 +253,7 @@ class MetadataFilesColumn extends Column
      * @param RecordValue $valueContainer
      * @return DbFileInfo|DbImageFileInfo
      */
-    protected function createFileInfoObject(RecordValue $valueContainer)
+    protected function createFileInfoObject(RecordValue $valueContainer): DbImageFileInfo|DbFileInfo
     {
         $class = $this->fileInfoClassName;
         return new $class($valueContainer);
@@ -275,10 +261,10 @@ class MetadataFilesColumn extends Column
     
     /**
      * Get file name without extension
-     * @param string|null|\Closure $fallbackValue - null: $this->getName() is used
+     * @param string|\Closure|null $fallbackValue - null: $this->getName() is used
      * @return string - file name without extension
      */
-    public function getFileNameWithoutExtension($fallbackValue = null): string
+    public function getFileNameWithoutExtension(string|\Closure|null $fallbackValue = null): string
     {
         $generator = $this->getFileNameGenerator();
         if (!empty($generator)) {
@@ -315,11 +301,10 @@ class MetadataFilesColumn extends Column
     }
     
     /**
-     * @noinspection PhpMissingReturnTypeInspection
-     * @noinspection ReturnTypeCanBeDeclaredInspection
-     * Return type is overriden in MetadataImagesColumn with array|string return type
+     * @return string
+     * @noinspection PhpDocSignatureInspection
      */
-    public function getAbsoluteFileUrl(RecordValue $valueContainer)
+    public function getAbsoluteFileUrl(RecordValue $valueContainer): array|string|null
     {
         return $this->getFileDirAbsoluteUrl($valueContainer->getRecord()) . $this->getFullFileName($valueContainer);
     }
@@ -388,14 +373,10 @@ class MetadataFilesColumn extends Column
         return is_callable($this->basePathToFiles) ? call_user_func($this->basePathToFiles) : $this->basePathToFiles;
     }
     
-    /**
-     * @param string|\Closure $basePathToFiles
-     * @return static
-     */
-    public function setBasePathToFiles($basePathToFiles)
+    public function setBasePathToFiles(\Closure|string $basePathToFiles): static
     {
-        if (empty($basePathToFiles) || (!is_string($basePathToFiles) && !($basePathToFiles instanceof \Closure))) {
-            throw new \InvalidArgumentException('$basePathToFiles argument must be a not-empty string or \Closure');
+        if (empty($basePathToFiles)) {
+            throw new \InvalidArgumentException('$basePathToFiles argument must be a not empty string or \Closure');
         }
         $this->basePathToFiles = $basePathToFiles;
         return $this;
@@ -409,14 +390,10 @@ class MetadataFilesColumn extends Column
         return is_callable($this->baseUrlToFiles) ? call_user_func($this->baseUrlToFiles) : $this->baseUrlToFiles;
     }
     
-    /**
-     * @param string|null|\Closure $baseUrlToFiles
-     * @return static
-     */
-    public function setBaseUrlToFiles($baseUrlToFiles)
+    public function setBaseUrlToFiles(\Closure|string $baseUrlToFiles): static
     {
-        if (!is_string($baseUrlToFiles) && !($baseUrlToFiles instanceof \Closure)) {
-            throw new \InvalidArgumentException('$baseUrlToFiles argument must be a string or \Closure');
+        if (empty($baseUrlToFiles)) {
+            throw new \InvalidArgumentException('$baseUrlToFiles argument must be not empty string or \Closure');
         }
         if (is_string($baseUrlToFiles) && preg_match('%(https?://[^/]+)(/.*$|$)%i', $baseUrlToFiles, $urlParts)) {
             $this->baseUrlToFiles = $urlParts[2];
@@ -432,19 +409,12 @@ class MetadataFilesColumn extends Column
         return $this;
     }
     
-    /**
-     * @return null|string
-     */
     public function getDefaultFileExtension(): ?string
     {
         return $this->defaultFileExtension;
     }
     
-    /**
-     * @param string $defaultFileExtension
-     * @return static
-     */
-    public function setDefaultFileExtension(string $defaultFileExtension)
+    public function setDefaultFileExtension(string $defaultFileExtension): static
     {
         if (empty($defaultFileExtension)) {
             throw new \InvalidArgumentException('$defaultFileExtension argument must be a not-empty string');
@@ -462,11 +432,7 @@ class MetadataFilesColumn extends Column
         return $this->allowedFileExtensions;
     }
     
-    /**
-     * @param array $allowedFileExtensions
-     * @return static
-     */
-    public function setAllowedFileExtensions(array $allowedFileExtensions)
+    public function setAllowedFileExtensions(array $allowedFileExtensions): static
     {
         if (count($allowedFileExtensions) === 0) {
             throw new \InvalidArgumentException('$allowedFileExtensions argument must be a not-empty array');
@@ -486,9 +452,8 @@ class MetadataFilesColumn extends Column
     
     /**
      * @param \Closure $fileDirRelativeUrlGenerator - function (FileColumnConfig $column, Record $record) {}
-     * @return static
      */
-    public function setFileDirRelativeUrlGenerator(\Closure $fileDirRelativeUrlGenerator)
+    public function setFileDirRelativeUrlGenerator(\Closure $fileDirRelativeUrlGenerator): static
     {
         $this->fileDirRelativeUrlGenerator = $fileDirRelativeUrlGenerator;
         return $this;
@@ -501,9 +466,8 @@ class MetadataFilesColumn extends Column
     
     /**
      * @param \Closure $fileDirPathGenerator - function (FileColumnConfig $column, Record $record) {}
-     * @return static
      */
-    public function setFileDirPathGenerator(\Closure $fileDirPathGenerator)
+    public function setFileDirPathGenerator(\Closure $fileDirPathGenerator): static
     {
         $this->fileDirPathGenerator = $fileDirPathGenerator;
         return $this;
@@ -516,9 +480,8 @@ class MetadataFilesColumn extends Column
     
     /**
      * @param \Closure $fileSubdirGenerator - function (FileColumnConfig $column, Record $record, $directorySeparator = DIRECTORY_SEPARATOR) {}
-     * @return static
      */
-    public function setFileSubdirGenerator(\Closure $fileSubdirGenerator)
+    public function setFileSubdirGenerator(\Closure $fileSubdirGenerator): static
     {
         $this->fileSubdirGenerator = $fileSubdirGenerator;
         return $this;
@@ -531,9 +494,8 @@ class MetadataFilesColumn extends Column
     
     /**
      * @param \Closure $fileNameGenerator - function (FileColumnConfig $column) {}
-     * @return static
      */
-    public function setFileNameGenerator(\Closure $fileNameGenerator)
+    public function setFileNameGenerator(\Closure $fileNameGenerator): static
     {
         $this->fileNameGenerator = $fileNameGenerator;
         return $this;
@@ -549,11 +511,7 @@ class MetadataFilesColumn extends Column
         return (bool)$this->fileServerUrlGenerator;
     }
     
-    /**
-     * @param \Closure $fileServerUrlGenerator
-     * @return static
-     */
-    public function setFileServerUrlGenerator(\Closure $fileServerUrlGenerator)
+    public function setFileServerUrlGenerator(\Closure $fileServerUrlGenerator): static
     {
         $this->fileServerUrlGenerator = $fileServerUrlGenerator;
         return $this;
@@ -583,7 +541,7 @@ class MetadataFilesColumn extends Column
      * @param array $uploadedFileInfo - uploaded file info
      * @return null|DbFileInfo|DbImageFileInfo - array: information about file same as when you get by callings $this->getFileInfoFromInfoFile()
      */
-    protected function analyzeUploadedFileAndSaveToFS(RecordValue $valueContainer, array $uploadedFileInfo)
+    protected function analyzeUploadedFileAndSaveToFS(RecordValue $valueContainer, array $uploadedFileInfo): DbImageFileInfo|DbFileInfo|null
     {
         $pathToFiles = $this->getFileDirPath($valueContainer->getRecord());
         if (!is_dir($pathToFiles)) {
@@ -622,7 +580,7 @@ class MetadataFilesColumn extends Column
      * @param DbFileInfo|DbImageFileInfo $fileInfo
      * @return void
      */
-    protected function storeFileToFS(array $uploadedFileInfo, string $filePath, $fileInfo): void
+    protected function storeFileToFS(array $uploadedFileInfo, string $filePath, DbImageFileInfo|DbFileInfo $fileInfo): void
     {
         $file = File::load($uploadedFileInfo['tmp_name'])->move($filePath, 0666);
         if (!$file) {
@@ -636,7 +594,7 @@ class MetadataFilesColumn extends Column
      * @return string - file extension without leading point (ex: 'mp4', 'mov', '')
      * @throws \InvalidArgumentException
      */
-    protected function detectUploadedFileExtension(array $uploadedFileInfo): ?string
+    protected function detectUploadedFileExtension(array $uploadedFileInfo): string
     {
         if (empty($uploadedFileInfo['type']) && empty($uploadedFileInfo['name']) && empty($uploadedFileInfo['tmp_name'])) {
             throw new \InvalidArgumentException('Uploaded file extension cannot be detected');
@@ -678,10 +636,7 @@ class MetadataFilesColumn extends Column
         return $this->indexInMetadataColumn;
     }
     
-    /**
-     * @return static
-     */
-    public function setIndexInMetadataColumn(int $indexInMetadataColumn)
+    public function setIndexInMetadataColumn(int $indexInMetadataColumn): static
     {
         $this->indexInMetadataColumn = $indexInMetadataColumn;
         return $this;
@@ -692,10 +647,7 @@ class MetadataFilesColumn extends Column
         return $this->metadataColumnName;
     }
     
-    /**
-     * @return static
-     */
-    public function setMetadataColumnName(string $metadataColumnName)
+    public function setMetadataColumnName(string $metadataColumnName): static
     {
         $this->metadataColumnName = $metadataColumnName;
         return $this;
@@ -706,10 +658,7 @@ class MetadataFilesColumn extends Column
         return $this->metadataGroupName;
     }
     
-    /**
-     * @return static
-     */
-    public function setMetadataGroupName(string $metadataGroupName)
+    public function setMetadataGroupName(string $metadataGroupName): static
     {
         $this->metadataGroupName = $metadataGroupName;
         return $this;
