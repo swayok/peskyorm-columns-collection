@@ -23,8 +23,14 @@
     "prefer-stable": true,
     "require": {
         "php": ">=8.0",
-        "swayok/peskyorm": "dev-v2_2",
+        "swayok/peskyorm": "v3.x-dev",
         "swayok/utils": "^1.7.1",
         "ramsey/uuid": "*"
+    },
+    "suggest": {
+        "symfony/http-foundation": "Needed to files and images columns"
+    },
+    "require-dev": {
+        "symfony/http-foundation": ">=3.0"
     }
 }

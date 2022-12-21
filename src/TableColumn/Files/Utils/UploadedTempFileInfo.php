@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace PeskyORMColumns\Column\Files\Utils;
+namespace PeskyORMColumns\TableColumn\Files\Utils;
 
 use Ramsey\Uuid\Uuid;
 use Swayok\Utils\File;
@@ -11,7 +11,6 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 abstract class UploadedTempFileInfo extends \SplFileInfo
 {
-    
     protected ?string $name = null;
     protected ?string $type = null;
     protected ?string $relativePath = null;
@@ -20,18 +19,18 @@ abstract class UploadedTempFileInfo extends \SplFileInfo
     protected bool $isValid = true;
     protected ?int $size = null;
     protected ?int $position = null;
-    
+
     abstract public static function getUploadsTempFolder(): string;
-    
+
     abstract protected static function encodeData(array $data): string;
-    
+
     abstract protected static function decodeData(string $encodedData): ?array;
-    
+
     protected static function createFolder(string $path): void
     {
         Folder::load($path, true, 0777);
     }
-    
+
     protected static function copyFile(string $fromPath, string $toPath): void
     {
         $file = File::load($fromPath);
@@ -40,12 +39,12 @@ abstract class UploadedTempFileInfo extends \SplFileInfo
         }
         $file->copy($toPath, true, 0666);
     }
-    
+
     protected static function deleteFile(string $path): void
     {
         File::remove($path);
     }
-    
+
     protected static function moveFile(string $fromPath, string $toPath, ?int $fileAccess = null): void
     {
         $file = File::load($fromPath);
@@ -54,12 +53,12 @@ abstract class UploadedTempFileInfo extends \SplFileInfo
         }
         $file->move($toPath, $fileAccess);
     }
-    
+
     public static function getSubfolderName(): string
     {
         return date('Y-m-d');
     }
-    
+
     /**
      * @param \SplFileInfo|UploadedFile|string|array|DbFileInfo|DbImageFileInfo $file
      * @param bool $save - true: if $file is UploadedFile or array - save it to disk
@@ -74,7 +73,7 @@ abstract class UploadedTempFileInfo extends \SplFileInfo
             $this->name = $file['name'];
             $this->type = $file['type'];
             $this->realPath = $file['tmp_name'];
-        } elseif ($file instanceof DbFileInfo) {
+        } elseif ($file instanceof DbFileInfoInterface) {
             $this->name = $file->getOriginalFileNameWithExtension();
             $this->type = $file->getMimeType();
             if ($file instanceof DbImageFileInfo) {
@@ -100,18 +99,18 @@ abstract class UploadedTempFileInfo extends \SplFileInfo
         }
         parent::__construct($this->realPath);
     }
-    
+
     public function setPosition(int $position): static
     {
         $this->position = $position;
         return $this;
     }
-    
+
     public function getPosition(): ?int
     {
         return $this->position;
     }
-    
+
     /**
      * Replace real path by copied file real path returning modified instance
      */
@@ -122,7 +121,7 @@ abstract class UploadedTempFileInfo extends \SplFileInfo
         $this->realPath = $copiedFilePath;
         return $this;
     }
-    
+
     /**
      * Create a copy of this instance that uses a copy of original file
      */
@@ -130,7 +129,7 @@ abstract class UploadedTempFileInfo extends \SplFileInfo
     {
         return (clone $this)->useCopiedFile();
     }
-    
+
     public function save(): static
     {
         if (!$this->isSaved) {
@@ -141,13 +140,13 @@ abstract class UploadedTempFileInfo extends \SplFileInfo
         }
         return $this;
     }
-    
+
     public function delete(): static
     {
         static::deleteFile($this->getRealPath());
         return $this;
     }
-    
+
     public function toArray(): array
     {
         return [
@@ -158,32 +157,32 @@ abstract class UploadedTempFileInfo extends \SplFileInfo
             'position' => $this->getPosition(),
         ];
     }
-    
+
     public function getName(): string
     {
         return $this->name;
     }
-    
+
     public function getFilename(): string
     {
         return $this->name;
     }
-    
+
     public function getType(): string
     {
         return $this->type;
     }
-    
+
     public function getRelativePath(): string
     {
         return $this->relativePath;
     }
-    
+
     public function getRealPath(): string
     {
         return $this->realPath;
     }
-    
+
     public function getSize(): int
     {
         if (!isset($this->size)) {
@@ -191,17 +190,17 @@ abstract class UploadedTempFileInfo extends \SplFileInfo
         }
         return $this->size;
     }
-    
+
     public function isValid(): bool
     {
         return $this->isValid;
     }
-    
+
     public function isImage(): bool
     {
         return str_starts_with($this->getType(), 'image/');
     }
-    
+
     public function encode(): string
     {
         return static::encodeData([
@@ -210,7 +209,7 @@ abstract class UploadedTempFileInfo extends \SplFileInfo
             'path' => $this->getRelativePath(),
         ]);
     }
-    
+
     protected function decode(string $encodedData): void
     {
         $data = static::decodeData($encodedData);
@@ -224,22 +223,22 @@ abstract class UploadedTempFileInfo extends \SplFileInfo
             $this->isValid = false;
         }
     }
-    
+
     protected function makeRelativeFilePath(): string
     {
         return '/' . static::getSubfolderName() . '/' . static::getUniqueTempFileNameWithoutExtension() . '.tmp';
     }
-    
+
     protected static function getUniqueTempFileNameWithoutExtension(): string
     {
         return Uuid::uuid4()->toString();
     }
-    
+
     protected function createSubfolder(): void
     {
         static::createFolder($this->makeAbsolutePath(static::getSubfolderName()));
     }
-    
+
     protected function makeAbsolutePath(string $relativePath): string
     {
         return static::getUploadsTempFolder() . DIRECTORY_SEPARATOR . ltrim($relativePath, '/\\');

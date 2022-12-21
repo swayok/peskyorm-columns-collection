@@ -5,12 +5,12 @@
 
 /** @noinspection PhpUnused */
 
-class PeskyORMColumnsIdeHelperRecord extends \PeskyORM\ORM\Record
+class PeskyORMColumnsIdeHelperRecord extends \PeskyORM\ORM\Record\Record
 {
     use \PeskyORMColumns\RecordTraits\HandlesPositioningCollisions;
-    
-    public static function getTable(): \PeskyORM\ORM\TableInterface
+
+    public function getTable(): \PeskyORM\ORM\Table\TableInterface
     {
-        return \PeskyORM\ORM\Table::getInstance();
+        return \PeskyORM\ORM\Table\Table::getInstance();
     }
 }

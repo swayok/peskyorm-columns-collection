@@ -2,49 +2,62 @@
 
 declare(strict_types=1);
 
-namespace PeskyORMColumns\Column\Files\Utils;
+namespace PeskyORMColumns\TableColumn\Files\Utils;
 
-use PeskyORM\ORM\RecordValue;
+use PeskyORM\ORM\Record\RecordInterface;
+use PeskyORMColumns\TableColumn\Files\VirtualImagesColumnInterface;
 use Swayok\Utils\File;
 use Swayok\Utils\ImageUtils;
 
-class DbImageFileInfo extends DbFileInfo
+class DbImageFileInfo extends DbFileInfoAbstract
 {
-    
     protected array $filesNames = [];
-    
-    public function __construct(RecordValue $valueContainer)
-    {
+
+    public function __construct(
+        RecordInterface $record,
+        VirtualImagesColumnInterface $column,
+        string $metadataGroupName,
+        int $fileIndexInMetadataGroup
+    ) {
         $this->jsonMap['files_names'] = 'filesNames';
-        parent::__construct($valueContainer);
+        parent::__construct(
+            $record,
+            $column,
+            $metadataGroupName,
+            $fileIndexInMetadataGroup
+        );
     }
-    
+
+    /** @noinspection PhpRedundantMethodOverrideInspection */
+    public function getColumn(): VirtualImagesColumnInterface
+    {
+        /** @noinspection PhpIncompatibleReturnTypeInspection */
+        return parent::getColumn();
+    }
+
     public function getFilesNames(): array
     {
         return $this->filesNames;
     }
-    
+
     public function setFilesNames(array $filesNames): static
     {
         $this->filesNames = $filesNames;
         return $this;
     }
-    
-    /*public function getOriginalFileNameWithExtension(): ?string {
-        // file extension might be modified so we need to add actual file extension to be consistent
-        return $this->getOriginalFileNameWithoutExtension() . '.' . $this->getFileExtension();
-    }*/
-    
+
     public function getFilePath(?string $versionName = null): array|string
     {
-        return $this->column->getImageVersionPath($this->record, $versionName);
+        return $this->getColumn()
+            ->getImageVersionPath($this->getRecord(), $versionName);
     }
-    
+
     public function getAbsoluteFileUrl(?string $versionName = null): array|string
     {
-        return $this->column->getAbsoluteFileUrl($this->valueContainer, $versionName);
+        return $this->getColumn()
+            ->getAbsoluteFileUrl($this->getRecord(), $versionName);
     }
-    
+
     /**
      * @param string|null $versionName = null: returns file size of 1st version (usually it is original file)
      * @return int
@@ -64,10 +77,10 @@ class DbImageFileInfo extends DbFileInfo
         }
         return 0;
     }
-    
+
     public function restoreImageVersion(?string $versionName, ?string $ext = null): ?string
     {
-        $configs = $this->column->getImageVersionsConfigs();
+        $configs = $this->getColumn()->getImageVersionsConfigs();
         if (empty($configs[$versionName])) {
             return null;
         }
@@ -75,7 +88,7 @@ class DbImageFileInfo extends DbFileInfo
             $versionName,
             $configs[$versionName],
             $this->getFileNameWithoutExtension(),
-            $this->column->getFileDirPath($this->record),
+            $this->getColumn()->getFileDirPath($this->getRecord()),
             $ext
         );
         return $filePath ?: null;

@@ -2,22 +2,14 @@
 
 declare(strict_types=1);
 
-namespace PeskyORMColumns\Column\Files\Utils;
+namespace PeskyORMColumns\TableColumn\Files\Utils;
 
-use PeskyORM\ORM\Column;
-use PeskyORM\ORM\RecordInterface;
-use PeskyORM\ORM\RecordValue;
-use PeskyORMColumns\Column\Files\MetadataFilesColumn;
-use PeskyORMColumns\Column\Files\MetadataImagesColumn;
+use PeskyORM\ORM\Record\RecordInterface;
+use PeskyORMColumns\TableColumn\Files\VirtualFilesColumnInterface;
 use Ramsey\Uuid\Uuid;
 
-class DbFileInfo
+abstract class DbFileInfoAbstract implements DbFileInfoInterface
 {
-    
-    protected RecordValue $valueContainer;
-    protected Column|MetadataFilesColumn|MetadataImagesColumn $column;
-    protected RecordInterface $record;
-    
     protected ?string $fileExtension = null;
     protected ?string $fileNameWithoutExtension = null;
     protected ?string $fileNameWithExtension = null;
@@ -25,7 +17,7 @@ class DbFileInfo
     protected ?string $originalFileNameWithoutExtension = null;
     protected ?string $uuid = null;
     protected ?int $position = null;
-    
+
     protected array $jsonMap = [
         'file_name' => 'fileNameWithoutExtension',
         'full_file_name' => 'fileNameWithExtension',
@@ -35,25 +27,26 @@ class DbFileInfo
         'uuid' => 'uuid',
         'position' => 'position',
     ];
-    
-    public function __construct(RecordValue $valueContainer)
-    {
-        $this->valueContainer = $valueContainer;
-        $this->column = $valueContainer->getColumn();
-        $this->record = $valueContainer->getRecord();
+
+    public function __construct(
+        protected RecordInterface $record,
+        protected VirtualFilesColumnInterface $column,
+        protected string $metadataGroupName,
+        protected int $fileIndexInMetadataGroup
+    ) {
         $this->readFileInfo();
     }
-    
+
     public function getRecord(): RecordInterface
     {
         return $this->record;
     }
-    
-    public function getColumn(): Column|MetadataFilesColumn|MetadataImagesColumn
+
+    public function getColumn(): VirtualFilesColumnInterface
     {
         return $this->column;
     }
-    
+
     public function readFileInfo(): static
     {
         if ($this->record->existsInDb()) {
@@ -64,29 +57,32 @@ class DbFileInfo
         }
         return $this;
     }
-    
+
     public function saveToFile(): void
     {
         if (!$this->record->existsInDb()) {
-            throw new \UnexpectedValueException('Unable to save file info json file of non-existing object');
+            throw new \UnexpectedValueException(
+                'Unable to save file info json file of non-existing object'
+            );
         }
         $metadata = $this->getFilesMetadataFromRecord();
-        if (!isset($metadata[$this->column->getMetadataGroupName()])) {
-            $metadata[$this->column->getMetadataGroupName()] = [];
+        if (!isset($metadata[$this->metadataGroupName])) {
+            $metadata[$this->metadataGroupName] = [];
         }
-        
-        $metadata[$this->column->getMetadataGroupName()][$this->column->getIndexInMetadataColumn()] = $this->getInfoForMetadataItem();
-        
+
+        $metadata[$this->metadataGroupName][$this->fileIndexInMetadataGroup]
+            = $this->getInfoForMetadataItem();
+
         $isRecordSavingRequired = !$this->record->isCollectingUpdates();
         if ($isRecordSavingRequired) {
             $this->record->begin();
         }
-        $this->record->updateValue($this->column->getMetadataColumnName(), $metadata, false);
+        $this->record->updateValue($this->getColumn()->getMetadataColumnName(), $metadata, false);
         if ($isRecordSavingRequired) {
             $this->record->commit();
         }
     }
-    
+
     public function getInfoForMetadataItem(): array
     {
         $data = [];
@@ -99,26 +95,24 @@ class DbFileInfo
         }
         return $data;
     }
-    
+
     protected function getFilesMetadataFromRecord(): array
     {
         return $this->record->existsInDb()
             ? (array)$this->record->getValue($this->column->getMetadataColumnName(), 'array')
             : [];
     }
-    
+
     protected function getFileMetadataFromRecord(): ?array
     {
         if (!$this->record->existsInDb()) {
             return null;
         }
         $metadata = $this->getFilesMetadataFromRecord();
-        $groupName = $this->column->getMetadataGroupName();
-        $index = $this->column->getIndexInMetadataColumn();
-        $info = $metadata[$groupName][$index] ?? null;
+        $info = $metadata[$this->metadataGroupName][$this->fileIndexInMetadataGroup] ?? null;
         return is_array($info) ? $info : null;
     }
-    
+
     public function update(array $data): static
     {
         foreach ($this->jsonMap as $jsonKey => $paramName) {
@@ -131,143 +125,137 @@ class DbFileInfo
         $this->normalizePosition();
         return $this;
     }
-    
+
     public function getUuid(): string
     {
         return $this->uuid;
     }
-    
+
     public function setUuid(string $uuid): static
     {
         $this->uuid = $uuid;
         return $this;
     }
-    
+
     protected function normalizeUuid(): static
     {
-        if (!$this->uuid && ($this->fileNameWithExtension || $this->originalFileNameWithExtension)) {
+        if (
+            !$this->uuid
+            && (
+                $this->fileNameWithExtension
+                || $this->originalFileNameWithExtension
+            )
+        ) {
             $this->uuid = Uuid::uuid4()->toString();
         }
         return $this;
     }
-    
+
     public function getPosition(): int
     {
-        return $this->position ?? $this->getColumn()->getIndexInMetadataColumn();
+        return $this->position ?? $this->fileIndexInMetadataGroup;
     }
-    
+
     public function setPosition(int $position): static
     {
         $this->position = $position;
         return $this;
     }
-    
+
     protected function normalizePosition(): static
     {
         if (!$this->position) {
-            $this->position = $this->getColumn()->getIndexInMetadataColumn();
+            $this->position = $this->fileIndexInMetadataGroup;
         }
         return $this;
     }
-    
+
     public function getFileExtension(): ?string
     {
         return $this->fileExtension;
     }
-    
+
     public function getMimeType(): string
     {
         $ext = $this->getFileExtension();
-        return $ext ? MimeTypesHelper::getMimeTypeForExtension($ext) : MimeTypesHelper::UNKNOWN;
+        return $ext
+            ? MimeTypesHelper::getMimeTypeForExtension($ext)
+            : MimeTypesHelper::UNKNOWN;
     }
-    
+
     public function setFileExtension(string $extension): static
     {
         $this->fileExtension = $extension;
         return $this;
     }
-    
+
     public function getFileNameWithoutExtension(): ?string
     {
         return $this->fileNameWithoutExtension;
     }
-    
+
     public function setFileNameWithoutExtension(string $fileNameWithoutExtension): static
     {
         $this->fileNameWithoutExtension = rtrim($fileNameWithoutExtension, '.');
         return $this;
     }
-    
+
     public function getFileNameWithExtension(): ?string
     {
         return $this->fileNameWithExtension;
     }
-    
+
     public function setFileNameWithExtension(string $fileNameWithExtension): static
     {
         $this->fileNameWithExtension = rtrim($fileNameWithExtension, '.');
         $this->normalizeUuid();
         return $this;
     }
-    
+
     public function getOriginalFileNameWithExtension(): ?string
     {
         return empty($this->originalFileNameWithExtension)
             ? $this->getFileNameWithExtension()
             : $this->originalFileNameWithExtension;
     }
-    
+
     public function hasOriginalFileNameWithExtension(): bool
     {
         return !empty($this->originalFileNameWithExtension);
     }
-    
+
     public function setOriginalFileNameWithExtension(string $fileNameWithExtension): static
     {
         $this->originalFileNameWithExtension = rtrim($fileNameWithExtension, '.');
         $this->normalizeUuid();
         return $this;
     }
-    
+
     public function getOriginalFileNameWithoutExtension(): ?string
     {
         return empty($this->originalFileNameWithoutExtension)
             ? $this->getFileNameWithoutExtension()
             : $this->originalFileNameWithoutExtension;
     }
-    
-    public function setOriginalFileNameWithoutExtension(string $fileNameWithoutExtension): static
-    {
+
+    public function setOriginalFileNameWithoutExtension(
+        string $fileNameWithoutExtension
+    ): static {
         $this->originalFileNameWithoutExtension = rtrim($fileNameWithoutExtension, '.');
         return $this;
     }
-    
-    /**
-     * @return string
-     * @noinspection PhpDocSignatureInspection
-     */
-    public function getFilePath(): array|string
-    {
-        return $this->column->getFilePath($this->valueContainer);
-    }
-    
-    /**
-     * @return string
-     * @noinspection PhpDocSignatureInspection
-     */
-    public function getAbsoluteFileUrl(): array|string
-    {
-        return $this->column->getAbsoluteFileUrl($this->valueContainer);
-    }
-    
+
     public function isFileExists(): bool
     {
-        if (empty($this->originalFileNameWithExtension) && empty($this->fileNameWithExtension)) {
+        if (
+            empty($this->originalFileNameWithExtension)
+            && empty($this->fileNameWithExtension)
+        ) {
             return false;
         }
-        return $this->column->isFileExists($this->valueContainer);
+        return $this->getColumn()->isFileExists($this->record);
     }
-    
+
     public function getFileSize(): int
     {
         if ($this->isFileExists()) {
@@ -275,7 +263,7 @@ class DbFileInfo
         }
         return 0;
     }
-    
+
     public function toArray(): array
     {
         return [
@@ -288,5 +276,5 @@ class DbFileInfo
             'uuid' => $this->getUuid(),
         ];
     }
-    
+
 }

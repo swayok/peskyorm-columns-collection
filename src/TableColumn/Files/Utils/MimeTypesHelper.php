@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace PeskyORMColumns\Column\Files\Utils;
+namespace PeskyORMColumns\TableColumn\Files\Utils;
 
 abstract class MimeTypesHelper {
 
@@ -54,7 +54,7 @@ abstract class MimeTypesHelper {
     /**
      * List of aliases for file types.
      * Format: 'common/filetype' => ['alias/filetype1', 'alias/filetype2']
-     * For example: image/jpeg file type has alias image/x-jpeg
+     * For example: 'image/jpeg' file type has alias 'image/x-jpeg'
      */
     protected static array $mimeTypesAliases = [
         self::JPEG => [
