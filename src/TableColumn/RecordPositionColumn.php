@@ -6,10 +6,13 @@ namespace PeskyORMColumns\TableColumn;
 
 use PeskyORM\DbExpr;
 use PeskyORM\ORM\TableStructure\TableColumn\TemplateColumn\IntegerColumnTemplate;
+use PeskyORM\ORM\TableStructure\TableColumn\Traits\CanBeNullable;
 use PeskyORM\Utils\ArgumentValidators;
 
 class RecordPositionColumn extends IntegerColumnTemplate
 {
+    use CanBeNullable;
+
     protected int $increment;
 
     public function __construct(
