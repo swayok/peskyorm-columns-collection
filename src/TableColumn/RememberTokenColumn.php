@@ -7,7 +7,7 @@ namespace PeskyORMColumns\TableColumn;
 use PeskyORM\ORM\TableStructure\TableColumn\TemplateColumn\StringColumnTemplate;
 use PeskyORM\ORM\TableStructure\TableColumn\Traits\CanBePrivate;
 
-class RememberToken extends StringColumnTemplate
+class RememberTokenColumn extends StringColumnTemplate
 {
     use CanBePrivate;
 
